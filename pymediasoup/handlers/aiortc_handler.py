@@ -303,26 +303,27 @@ class AiortcHandler(HandlerInterface):
         )
 
     async def stopSending(self, localId):
-        pass
-        # self._assertSendDirection()
-        # logging.debug(f'stopSending() [localId:{localId}]')
-        # transceiver = self._mapMidTransceiver.get(localId)
-        # if not transceiver:
-        #     raise Exception('associated RTCRtpTransceiver not found')
-        # transceiver.sender.replaceTrack()
-        # # TODO:RTCPeerConnection do not have removeTrack()
-        # self._pc.removeTrack(transceiver.sender)
-        # self._remoteSdp.closeMediaSection(transceiver.mid)
-        # offer = await self._pc.createOffer()
-        # logging.debug(f'stopSending() | calling pc.setLocalDescription() [offer:{offer}]')
-        # await self._pc.localDescription(offer)
-        # answer: RTCSessionDescription = RTCSessionDescription(
-        #     type='answer',
-        #     sdp=self._remoteSdp.getSdp()
-        # )
-        # logging.debug(f'stopSending() | calling pc.setRemoteDescription() [answer:{answer}]')
-        # await self._pc.setRemoteDescription(answer)
-        # self._mapMidTransceiver.pop(localId, None)
+        self._assertSendDirection()
+        logging.info(f'stopSending() [localId:{localId}]')
+        transceiver = self._mapMidTransceiver.get(localId)
+        if not transceiver:
+            raise Exception('associated RTCRtpTransceiver not found')
+        transceiver.sender.replaceTrack()
+        # TODO:RTCPeerConnection do not have removeTrack()
+        self._pc.removeTrack(transceiver.sender)
+        self._remoteSdp.closeMediaSection(transceiver.mid)
+        offer = await self._pc.createOffer()
+        logging.info(f'stopSending() | calling pc.setLocalDescription() [offer:{offer}]')
+        await self._pc.localDescription(offer)
+        answer: RTCSessionDescription = RTCSessionDescription(
+            type='answer',
+            sdp=self._remoteSdp.getSdp()
+        )
+        logging.info(f'stopSending() | calling pc.setRemoteDescription() [answer:{answer}]')
+        await self._pc.setRemoteDescription(answer)
+        logging.info("setRemoteDescription done")
+        self._mapMidTransceiver.pop(localId, None)
+        logging.info(f"popped {localId} from self._mapMidTranceiver")
     
     async def replaceTrack(self, localId, track=None):
         self._assertSendDirection()
